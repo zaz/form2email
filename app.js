@@ -1,0 +1,79 @@
+// Dependiencies
+const express = require('express')
+const Mailgun = require('mailgun-js')
+const bodyParser = require('body-parser')
+
+// Constants
+const domain = 'hyperturtle.digital'
+const from_user = 'noreply'
+const subject = 'Message from Contact Form'
+const email_matcher = /@/
+
+// Derived Constants
+const port = process.env.PORT || 3000
+const from = from_user + "@" + domain
+const apiKey = process.env.MAILGUN_API_KEY
+const mailgun = new Mailgun({apiKey, domain})
+const app = express()
+
+// Pre-run checks
+if (!apiKey) { throw Error("no Mailgun API key") }
+if (!mailgun) { throw Error("failed to initialize Mailgun") }
+
+// Functions
+const send_email = (data, callback) => {
+	data["h:Reply-To"] = data.reply_to
+	mailgun.messages().send(data, callback)
+}
+
+const req_to_data = req => ({
+	from,
+	to: req.params.email,
+	subject: req.body.subject || subject,
+	text: req.body.body,
+	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`
+})
+
+const log_data = data => {
+	console.log("############ email ############")
+	console.log("Reply-To: " + data.reply_to)
+	console.log("To: " + data.to)
+	console.log("Text: " + data.text)
+	console.log("###############################")
+}
+
+const validate_data = data => {
+	if (!data.to.match(email_matcher)) { throw Error("400: invalid email") }
+	if (!data.text) { throw Error("400: no body content") }
+}
+
+// Main function
+const process_email = (req, res, next) => {
+	data = req_to_data(req)
+	log_data(data)
+	validate_data(data)
+	send_email(data, (err, body) => {
+		if (err) { next(err) }
+		else {
+			res.render('success', data)
+			console.log(body)
+		}
+	})
+}
+
+// Express server
+app.set('view engine', 'jade')
+
+app.use(bodyParser.urlencoded({ extended: false }))
+
+app.post('/:email', process_email)
+
+app.use(function (error, req, res, next) {
+	let code = Number(error.message.substring(0, 3)) || 500
+	res.status(code)
+	if (code === 500) { console.error(error) }
+	else              { console.warn(error.message) }
+	res.render('error', { error })
+})
+
+app.listen(port)
