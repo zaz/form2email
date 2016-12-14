@@ -15,6 +15,9 @@ const from = from_user + "@" + domain
 const apiKey = process.env.MAILGUN_API_KEY
 const mailgun = new Mailgun({apiKey, domain})
 const app = express()
+// an empty whitelist allows all valid email addresses
+let ewl = process.env.EMAIL_WHITELIST
+const email_whitelist = ewl && ewl.split(" ") || false
 
 // Pre-run checks
 if (!apiKey) { throw Error("no Mailgun API key") }
@@ -43,8 +46,12 @@ const log_data = data => {
 }
 
 const validate_data = data => {
-	if (!data.to.match(email_matcher)) { throw Error("400: invalid email") }
-	if (!data.text) { throw Error("400: no body content") }
+	if (!data.to.match(email_matcher))
+		{ throw Error("400: invalid email") }
+	if (!data.text)
+		{ throw Error("400: no body content") }
+	if (email_whitelist && !email_whitelist.includes(data.to))
+		{ throw Error("403: email not whitelisted") }
 }
 
 // Main function
