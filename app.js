@@ -47,11 +47,13 @@ const log_data = data => {
 
 const validate_data = data => {
 	if (!data.to.match(email_matcher))
-		{ throw Error("400: invalid email") }
+		{ throw Error("500: website owner email invalid") }
+	if (!data.reply_to.match(email_matcher))
+		{ throw Error("400: email invalid") }
 	if (!data.text)
-		{ throw Error("400: no body content") }
+		{ throw Error("400: no message content") }
 	if (email_whitelist && !email_whitelist.includes(data.to))
-		{ throw Error("403: email not whitelisted") }
+		{ throw Error("500: website owner email not whitelisted") }
 }
 
 // Main function
