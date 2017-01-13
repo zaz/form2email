@@ -17,11 +17,22 @@ Simply add a contact form to any site as so:
 	<form action="https://form2email.example.com/john@anydomain.com" method="post">
 		<textarea type="text" name="body" placeholder="Message" required></textarea>
 		<input type="text" name="name" placeholder="Name" required>
+    <input type="text" name="company" placeholder="Company">
 		<input type="email" name="email" placeholder="Email" required>
+    <input type="tel" name="tel" placeholder="Telephone">
 		<input type="submit" value="SEND">
 	</form>
 
 form2email will set `"name" <email>` as the Reply-To address unless a `reply_to` form value is specified.
+
+Fields can be omitted or set to required as desired. form2email will add details in the footer as so:
+
+    --
+
+    name
+    company
+    email
+    tel
 
 ------------
 
