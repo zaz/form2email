@@ -29,11 +29,18 @@ const send_email = (data, callback) => {
 	mailgun.messages().send(data, callback)
 }
 
+const req_to_footer_text = req =>
+	"\n\n-- \n"
+	+ "\n" + (req.body.name || "")
+	+ "\n" + (req.body.company || "")
+	+ "\n" + (req.body.email || "")
+	+ "\n" + (req.body.tel || "")
+
 const req_to_data = req => ({
 	from,
 	to: req.params.email,
 	subject: req.body.subject || subject,
-	text: req.body.body,
+	text: req.body.body + req_to_footer_text(req),
 	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`
 })
 
