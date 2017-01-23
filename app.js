@@ -48,11 +48,9 @@ const req_to_data = req => ({
 })
 
 const log_data = data => {
-	console.log("############ email ############")
-	console.log("Reply-To: " + data.reply_to)
-	console.log("To: " + data.to)
-	console.log("Text: " + data.text)
-	console.log("###############################")
+	console.log(`## To: ${data.to}`)
+	console.log(data.text)
+	console.log("--------------------------------------------------------------")
 }
 
 const validate_data = data => {
