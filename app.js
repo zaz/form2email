@@ -29,6 +29,9 @@ const send_email = (data, callback) => {
 	mailgun.messages().send(data, callback)
 }
 
+const deobfuscate_email = (email) =>
+	email.replace("...", "@")
+
 const req_to_footer_text = req =>
 	"\n\n-- \n"
 	+ "\n" + (req.body.name || "")
@@ -38,7 +41,7 @@ const req_to_footer_text = req =>
 
 const req_to_data = req => ({
 	from,
-	to: req.params.email,
+	to: deobfuscate_email(req.params.email),
 	subject: req.body.subject || subject,
 	text: req.body.body + req_to_footer_text(req),
 	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`
