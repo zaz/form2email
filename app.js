@@ -43,7 +43,7 @@ const req_to_data = req => ({
 	from,
 	to: deobfuscate_email(req.params.email),
 	subject: req.body.subject || subject,
-	text: req.body.body + req_to_footer_text(req),
+	text: (req.body.body || "") + req_to_footer_text(req),
 	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`,
 	honey: req.body.hny
 })
