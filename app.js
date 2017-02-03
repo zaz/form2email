@@ -44,7 +44,8 @@ const req_to_data = req => ({
 	to: deobfuscate_email(req.params.email),
 	subject: req.body.subject || subject,
 	text: req.body.body + req_to_footer_text(req),
-	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`
+	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`,
+	honey: req.body.hny
 })
 
 const log_data = data => {
@@ -62,6 +63,11 @@ const validate_data = data => {
 		{ throw Error("400: no message content") }
 	if (email_whitelist && !email_whitelist.includes(data.to))
 		{ throw Error("500: website owner email not whitelisted") }
+	// catch bots:
+	if (data.honey)
+		{ throw Error("400: you were recognized as a bot") }
+	if (data.reply_to.length > 99)
+		{ throw Error("400: your name or email is too long") }
 }
 
 // Main function
