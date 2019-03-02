@@ -43,6 +43,7 @@ const req_to_data = req => ({
 	from,
 	to: deobfuscate_email(req.params.email),
 	subject: req.body.subject || subject,
+	message: (req.body.body || ""),  // used internally to block empty msgs
 	text: (req.body.body || "") + req_to_footer_text(req),
 	reply_to: req.body.reply_to || `"${req.body.name}" <${req.body.email}>`,
 	honey: req.body.hny
@@ -59,8 +60,9 @@ const validate_data = data => {
 		{ throw Error("500: website owner email invalid") }
 	if (!data.reply_to.match(email_matcher))
 		{ throw Error("400: email invalid") }
-	if (!data.text)
-		{ throw Error("400: no message content") }
+	// block messages with < 7 characters, returns 200 OK to fool bots
+	if (data.message.length < 7)
+		{ throw Error("200: no message content") }
 	if (email_whitelist && !email_whitelist.includes(data.to))
 		{ throw Error("500: website owner email not whitelisted") }
 	// catch bots:
